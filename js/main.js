@@ -16,8 +16,7 @@ async function main() {
     }
    
      // intermediate proof
-    const { witness } = await noirMain.execute(inputs);
-    const { proof, publicInputs } = await mainBackend.generateProof(witness);
+    const { proof, publicInputs } = await noirMain.generateProof(inputs);
     const { proofAsFields, vkAsFields, vkHash } = await mainBackend.generateRecursiveProofArtifacts({ publicInputs, proof }, 1);
 
     // final proof
@@ -28,11 +27,7 @@ async function main() {
         key_hash: vkHash,
     };
 
-    const recursiveWitness = await noirRecursive.execute(recursiveInputs);
-
-    // this part is getting unreachable
-    const finalProofData = await recursionBackend.generateProof(recursiveWitness);
-    const verified = await recursionBackend.generateProof(finalProofData); 
+    const verified = await noirRecursive.generateProof(recursiveInputs); 
     console.log("Verified:", verified);
 }
 
