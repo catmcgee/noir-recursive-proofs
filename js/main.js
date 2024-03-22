@@ -4,7 +4,7 @@ import mainCircuit from '../circuits/main/target/noir_recursion.json' assert { t
 import recursionCircuit from '../circuits/recursion/target/noir_recursion.json' assert { type: 'json' };
 
 async function main() {
-    // setup backends for main and recursive proofs
+      // setup backends for main and recursive proofs
     const mainBackend = new BarretenbergBackend(mainCircuit, { threads: 32 });
     const recursionBackend = new BarretenbergBackend(recursionCircuit, { threads: 32 });
     const noirMain = new Noir(mainCircuit, mainBackend);
@@ -15,24 +15,25 @@ async function main() {
         y: 2 
     }
    
-    // intermediate proof
+     // intermediate proof
     const { witness } = await noirMain.execute(inputs);
     const { proof, publicInputs } = await mainBackend.generateProof(witness);
     const { proofAsFields, vkAsFields, vkHash } = await mainBackend.generateRecursiveProofArtifacts({ publicInputs, proof }, 1);
 
     // final proof
     const recursiveInputs = {
-        verification_key:  vkAsFields.map(e => e.toString()),
-        proof: proofAsFields, 
+        verification_key:  vkAsFields.map(e => e.toString()), 
+        proof: proofAsFields,
         public_inputs: publicInputs, 
         key_hash: vkHash,
     };
-    const { recursiveWitness } = await noirRecursive.execute(recursiveInputs);
-    
+
+    const recursiveWitness = await noirRecursive.execute(recursiveInputs);
+
     // this part is getting unreachable
     const finalProofData = await recursionBackend.generateProof(recursiveWitness);
     const verified = await recursionBackend.generateProof(finalProofData); 
-    console.log(verified);
-}   
-// Execute the main function
+    console.log("Verified:", verified);
+}
+
 main().catch(console.error);
